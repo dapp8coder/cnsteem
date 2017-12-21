@@ -1,4 +1,4 @@
-# CNsteem --Promote Steem Block to China
+# CNsteem --Promote Steem Blockchain to China
 
 
 后端：Python-Flask
