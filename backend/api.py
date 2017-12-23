@@ -46,7 +46,6 @@ def pay():
             'email': email
         }
     )
-    print(source)
     data = {'redirect_url': source.redirect.url}
     return build_success_response(data=data)
 

@@ -1,4 +1,5 @@
 ### pay object
+```
 {
   "alipay": {
     "data_string": null,
@@ -37,6 +38,7 @@
   "type": "alipay",
   "usage": "single_use"
 }
+```
 ### call back object
 
 ```
