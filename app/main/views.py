@@ -1,14 +1,14 @@
+import os
 import string
 import random
 import stripe
-import os
 from flask import render_template, redirect, request, current_app, url_for, flash
 from ..model import Order, User
 from .. import db
 from .. import email_tool
 from . import steem_tool
-from .forms import RegisterForm, PaymentForm
 from . import main
+from .forms import RegisterForm, PaymentForm
 
 stripe.api_key = os.environ['STRIPE_API_KEY']
 
@@ -116,10 +116,10 @@ def register(code):
             user = User(username=order.username, email=order.email)
             db.session.add(order)
             db.session.add(user)
-            return render_template('info.html', message="创建成功")
+            return render_template('info.html', message="创建成功，前往Steemit或CNsteem")
         except Exception as e:
             print(str(e))
-            return render_template('info.html', message="创建失败，请联系管理员！")
+            return render_template('info.html', message="创建失败，请联系管理员-cnsteem@gmail.com！")
     # generate register form
     form.email.data = order.email
     form.username.data = order.username
