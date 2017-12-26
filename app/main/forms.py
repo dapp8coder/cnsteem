@@ -7,7 +7,7 @@ from . import steem_tool
 class PaymentForm(FlaskForm):
     username = StringField('用户名', validators=[DataRequired('必填项'), Length(3, 15,'长度必须在3和16之间'),
                                               Regexp('^[a-z][a-z0-9.]*$', 0,
-                                                     '用户名必须由小写字母，0-9，破折号或点号构成，首字符必须为字母，长度在3-16之间')])
+                                                     '用户名必须由小写字母，0-9，破折号或点号构成，首字符必须为字母')])
     email = StringField('Email', validators=[Email('Email不合法'), Length(1, 64, '长度必须在1和64之间')])
     confirmed_email = StringField('确认Email',
                                   validators=[Email('Email不合法'), EqualTo('confirmed_email', message='Email必须相同')])
