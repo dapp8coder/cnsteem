@@ -82,9 +82,10 @@ def webhook():
                 order.confirmed_code = confirmed_code
                 db.session.add(order)
                 # Send email
-                link = url_for('main.register', _external=True, code=confirmed_code)
-                # status_code = email_tool.send_email(data['metadata']['email'], link)
-                # print(status_code)
+                if not current_app.config['DEBUG']:
+                    link = url_for('main.register', _external=True, code=confirmed_code)
+                    status_code = email_tool.send_email(data['metadata']['email'], link)
+                    print(status_code)
                 return "Success"
 
         except Exception:
