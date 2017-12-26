@@ -82,7 +82,7 @@ def webhook():
                 order.confirmed_code = confirmed_code
                 db.session.add(order)
                 # Send email
-                if not current_app.config['DEBUG']:
+                if not current_app.config['PRODUCTION']:
                     link = url_for('main.register', _external=True, code=confirmed_code)
                     status_code = email_tool.send_email(data['metadata']['email'], link)
                     print(status_code)
@@ -104,7 +104,7 @@ def register(code):
     if form.validate_on_submit():
         try:
             # steem register
-            if not current_app.config['DEBUG']:
+            if not current_app.config['PRODUCTION']:
                 steem_tool.create_account(
                     order.username,
                     delegation_fee_steem=current_app.config['STEEM_REGISTER_FEE'],

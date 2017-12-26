@@ -31,7 +31,7 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
-    pass
+    PRODUCTION = True
 
 
 config = {
