@@ -14,6 +14,7 @@ class Config:
     STRIPE_OWNER_EMAIL = "cnsteem@gmail.com"
     STEEM_REGISTER_CREATOR = "cnsteem"
     STEEM_REGISTER_FEE = "0.2 STEEM"
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
 
     @staticmethod
     def init_app(app):
@@ -22,7 +23,7 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
+
 
 
 class TestingConfig(Config):
