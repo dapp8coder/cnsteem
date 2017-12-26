@@ -1,12 +1,14 @@
-from flask import render_template, redirect, request, current_app, url_for, flash
-from .forms import RegisterForm, PaymentForm
-from . import main
-from ..model import Order, User
-from .. import db
 import string
 import random
 import stripe
 import os
+from flask import render_template, redirect, request, current_app, url_for, flash
+from ..model import Order, User
+from .. import db
+from .. import email_tool
+from . import steem_tool
+from .forms import RegisterForm, PaymentForm
+from . import main
 
 stripe.api_key = os.environ['STRIPE_API_KEY']
 
@@ -53,7 +55,7 @@ def callback():
     try:
         source = stripe.Source.retrieve(source_id)
         if source and source.status != "failed":
-            return render_template("info.html", message="付款成功，请查看Email获取注册链接")
+            return render_template("info.html", message="付款成功，请登录邮箱查看注册链接")
     except Exception:
         return render_template("info.html", message="付款失败")
     return render_template("info.html", message="付款失败")
@@ -74,14 +76,17 @@ def webhook():
             )
             if charge.status == 'succeeded':
                 # Update the order info
-                confirmed_code = code_gen(size=12)
+                confirmed_code = code_gen(size=24)
                 order = Order.query.filter_by(source_id=data['id']).first()
                 order.charge_id = charge.id
                 order.confirmed_code = confirmed_code
                 db.session.add(order)
-                # Send email TODO
+                # Send email
+                link = url_for('main.register', _external=True, code=confirmed_code)
+                # status_code = email_tool.send_email(data['metadata']['email'], link)
+                # print(status_code)
+                return "Success"
 
-                return 'Success'
         except Exception:
             return 'Failure'
     return 'Failure'
@@ -96,16 +101,26 @@ def register(code):
 
     form = RegisterForm()
     if form.validate_on_submit():
-        # steem register TODO
-
-        # update database
-        order.created = True
-        user = User(username=order.username, email=order.email)
-        db.session.add(order)
-        db.session.add(user)
-        return render_template('info.html', message="注册成功")
+        try:
+            # steem register
+            if not current_app.config['DEBUG']:
+                steem_tool.create_account(
+                    order.username,
+                    delegation_fee_steem=current_app.config['STEEM_REGISTER_FEE'],
+                    password=form.password.data,
+                    creator=current_app.config['STEEM_REGISTER_CREATOR']
+                )
+            # update database
+            order.created = True
+            user = User(username=order.username, email=order.email)
+            db.session.add(order)
+            db.session.add(user)
+            return render_template('info.html', message="创建成功")
+        except Exception as e:
+            print(str(e))
+            return render_template('info.html', message="创建失败，请联系管理员！")
     # generate register form
     form.email.data = order.email
     form.username.data = order.username
-    form.password.data = code_gen(size=16)
+    form.password.data = form.password.data if form.password.data else code_gen(size=32)
     return render_template('index.html', form=form)
