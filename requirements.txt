@@ -44,7 +44,7 @@ six==1.11.0
 SQLAlchemy==1.1.15
 steem==0.18.103
 stripe==1.77.0
-toml==0.9.3
+toml==0.9.3.1
 toolz==0.8.2
 tzlocal==1.4
 ujson==1.35
