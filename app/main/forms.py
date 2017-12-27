@@ -11,7 +11,7 @@ class PaymentForm(FlaskForm):
     email = StringField('Email', validators=[Email('Email不合法'), Length(1, 64, '长度必须在1和64之间')])
     confirmed_email = StringField('确认Email',
                                   validators=[Email('Email不合法'), EqualTo('confirmed_email', message='Email必须相同')])
-    amount = StringField('金额', render_kw={'readonly': True}, default="$1.25")
+    amount = StringField('金额', render_kw={'readonly': True}, default="$1.00")
     submit = SubmitField('支付宝付款')
 
     def validate_username(self, field):
