@@ -20,13 +20,15 @@ def code_gen(size=16, chars=string.ascii_letters + string.digits):
 @main.route('/', methods=['GET', 'POST'])
 def index():
     form = PaymentForm()
+    payment_amount = current_app.config['STRIPE_CHARGE_AMOUNT']
+    form.amount.data = '$ ' + str(payment_amount)
     if form.validate_on_submit():
         username = form.username.data
         email = form.email.data
         try:
             source = stripe.Source.create(
                 type='alipay',
-                amount=int(current_app.config['STRIPE_CHARGE_AMOUNT'] * 100),
+                amount=int(payment_amount * 100),
                 currency=current_app.config['STRIPE_CHARGE_CURRENCY'],
                 owner={
                     'email': current_app.config['STRIPE_OWNER_EMAIL']
