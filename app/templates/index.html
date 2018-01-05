@@ -3,8 +3,9 @@
 {% block title %}Steem注册{% endblock %}
 
 {% block page_content %}
-<div class="page-header">
-    <p><h3><a href="https://steemit.com/cn/@skenan/cnsteem-io-steem" target="_blank">流程介绍</a> + <a href="https://steemit.com/cn/@skenan/cnsteem-io" target="_blank">问题解决</a></h3></p>
+<div class="page-header text-muted">
+
+    <h4>注册流程：选择用户名--输入邮箱--付款成功--检查邮件--完成注册</h4>
 
 </div>
 {{ wtf.quick_form(form, button_map={'submit': 'primary'}) }}

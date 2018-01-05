@@ -118,10 +118,10 @@ def register(code):
             user = User(username=order.username, email=order.email)
             db.session.add(order)
             db.session.add(user)
-            return render_template('info.html', message="创建成功，前往Steemit或CNsteem")
+            return render_template('register_success.html')
         except Exception as e:
             print(str(e))
-            return render_template('info.html', message="创建失败，请联系管理员-cnsteem@gmail.com！")
+            return render_template('register_failure.html')
     # generate register form
     form.email.data = order.email
     form.username.data = order.username
