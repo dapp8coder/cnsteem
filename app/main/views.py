@@ -8,7 +8,9 @@ from .. import db
 from .. import email_tool
 from . import steem_tool
 from . import main
-from .forms import RegisterForm, PaymentForm
+from .forms import RegisterForm, PaymentForm, DelegateForm
+from steem.converter import Converter
+from steem.account import Account, Amount
 
 stripe.api_key = os.environ['STRIPE_API_KEY']
 
@@ -127,3 +129,25 @@ def register(code):
     form.username.data = order.username
     form.password.data = form.password.data if form.password.data else code_gen(size=32)
     return render_template('index.html', form=form)
+
+
+@main.route('/delegate', methods=['GET', 'POST'])
+def delegate():
+    form = DelegateForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            flash('很抱歉，该账号未通过CNsteem.io注册，无法申请')
+        elif Amount(Account(username)['received_vesting_shares']).amount > 4000:
+            flash('该用户名已有足够带宽，请把机会让给他人')
+        else:
+            try :
+                vests = '{} VESTS'.format(Converter().sp_to_vests(2))
+                steem_tool.delegate_vesting_shares(username, vests, account=current_app.config['STEEM_REGISTER_CREATOR'])
+                return render_template('info.html', message="申请成功")
+            except Exception as e:
+                print(str(e))
+                return render_template('info.html', message='很抱歉，申请失败，请稍候再试或联系管理员')
+
+    return render_template('delegate.html', form=form)

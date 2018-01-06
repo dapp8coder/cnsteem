@@ -29,3 +29,10 @@ class RegisterForm(FlaskForm):
     def validate_agree(self, field):
         if field.data != 'Y':
             raise ValidationError('请牢记密码!')
+
+
+
+class DelegateForm(FlaskForm):
+    username = StringField('用户名', validators=[DataRequired(), Length(1, 64)])
+    steem_power = StringField('申请数量', render_kw={'readonly': True}, default='2 Steem Power')
+    submit = SubmitField('申请')
