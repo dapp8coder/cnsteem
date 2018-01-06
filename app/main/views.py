@@ -140,7 +140,7 @@ def delegate():
         if not user:
             flash('很抱歉，该账号未通过CNsteem.io注册，无法申请')
         elif Amount(Account(username)['received_vesting_shares']).amount > 4000:
-            flash('该用户名已有足够带宽，请把机会让给他人')
+            flash('很抱歉，该用户名已有足够带宽，请把机会让给他人')
         else:
             try :
                 vests = '{} VESTS'.format(Converter().sp_to_vests(2))

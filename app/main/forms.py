@@ -23,7 +23,7 @@ class RegisterForm(FlaskForm):
     username = StringField('用户名', validators=[DataRequired(), Length(1, 64)], render_kw={'readonly': True})
     email = StringField('Email', validators=[Email(), Length(1, 64)], render_kw={'readonly': True})
     password = StringField('密码', render_kw={'readonly': True})
-    agree = SelectField('我知道CNsteem不会保存我的密码，我已牢记', choices=[('N', 'No'), ('Y', 'Yes'), ])
+    agree = SelectField('我知道CNsteem不会保存，并且无法帮我找回密码，我已牢记', choices=[('N', 'No'), ('Y', 'Yes'), ])
     submit = SubmitField('注册')
 
     def validate_agree(self, field):
