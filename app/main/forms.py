@@ -6,8 +6,8 @@ from . import steem_tool
 
 class PaymentForm(FlaskForm):
     username = StringField('用户名', validators=[DataRequired('必填项'), Length(3, 15,'长度必须在3和16之间'),
-                                              Regexp('^[a-z][a-z0-9.]*$', 0,
-                                                     '用户名必须由小写字母，0-9，破折号或点号构成，首字符必须为字母')])
+                                              Regexp('^[a-z][a-z0-9.-]*[a-z0-9]$', 0,
+                                                     '用户名必须由小写字母，0-9，破折号或点号构成，首字符必须为字母，必须以字母或数字结尾')])
     email = StringField('Email', validators=[Email('Email不合法'), Length(1, 64, '长度必须在1和64之间')])
     confirmed_email = StringField('确认Email',
                                   validators=[Email('Email不合法'), EqualTo('confirmed_email', message='Email必须相同')])
@@ -15,6 +15,8 @@ class PaymentForm(FlaskForm):
     submit = SubmitField('支付宝付款')
 
     def validate_username(self, field):
+        if field.data.count('.') >=2:
+            raise ValidationError('用户名最多有一个点号')
         if steem_tool.get_account(field.data):
             raise ValidationError('%s 已被注册.' % field.data)
 
