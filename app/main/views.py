@@ -11,7 +11,6 @@ from . import main
 from .forms import RegisterForm, PaymentForm, DelegateForm
 from steem.converter import Converter
 from steem.account import Account, Amount
-from steembase.account import BrainKey
 
 stripe.api_key = os.environ['STRIPE_API_KEY']
 
@@ -129,7 +128,7 @@ def register(code):
     # generate register form
     form.email.data = order.email
     form.username.data = order.username
-    form.password.data = form.password.data if form.password.data else str(BrainKey().get_private_key())
+    form.password.data = form.password.data if form.password.data else code_gen(size=40)
     return render_template('index.html', form=form)
 
 
