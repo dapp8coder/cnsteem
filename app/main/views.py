@@ -116,6 +116,7 @@ def register(code):
                     password=form.password.data,
                     creator=current_app.config['STEEM_REGISTER_CREATOR']
                 )
+                print("%s has been created" % order.username)
             # update database
             order.created = True
             user = User(username=order.username, email=order.email)
