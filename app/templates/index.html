@@ -3,9 +3,9 @@
 {% block title %}Steem注册{% endblock %}
 
 {% block page_content %}
-<div class="page-header text-muted">
-    <h4>Steem快速注册：选择用户名->输入邮箱->付款成功->检查邮件->完成注册 </h4>
-    <span>PS：<a href="https://steemit.com/cn/@skenan/cnsteem-io" target="_blank">付费注册原因</a>，免费注册可前往<a href="https://steemit.com/pick_account" target="_blank">Steemit官网</a>，但需要翻墙+5-7天审核时间。</span>
+<div class="page-header">
+    <h4>流程：选择用户名-输入邮箱-付款成功-检查邮件-完成注册 </h4>
+    <span>PS：<a href="https://steemit.com/cn/@skenan/cnsteem-io" target="_blank">付费注册原因</a>，免费注册请前往<a href="https://steemit.com/pick_account" target="_blank">Steemit官网</a>，但需要翻墙+5-7天审核时间。</span>
 
 </div>
 {{ wtf.quick_form(form, button_map={'submit': 'primary'}) }}

@@ -15,9 +15,13 @@ class PaymentForm(FlaskForm):
     submit = SubmitField('支付宝付款')
 
     def validate_username(self, field):
-        if field.data.count('.') >=2:
+        name = field.data
+        if name.count('.') >=2:
             raise ValidationError('用户名最多有一个点号')
-        if steem_tool.get_account(field.data):
+        for n in name.split('.'):
+            if len(n) < 3:
+                raise ValidationError('以点号隔开的每一个分段长度要大于2')
+        if steem_tool.get_account(name):
             raise ValidationError('%s 已被注册.' % field.data)
 
 
