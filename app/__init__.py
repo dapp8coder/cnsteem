@@ -1,10 +1,14 @@
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from config import config
+import logging
+import logging.handlers
 
 db = SQLAlchemy()
 bootstrap = Bootstrap()
+
 
 def create_app(config_name):
     app = Flask(__name__)
@@ -14,4 +18,11 @@ def create_app(config_name):
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
+    if not os.path.exists('logs'):
+        os.mkdir('logs')
+    file_handler = logging.handlers.RotatingFileHandler('logs/cnsteem.log', maxBytes=10240, backupCount=10)
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s '))
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.INFO)
     return app
