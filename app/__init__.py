@@ -28,4 +28,5 @@ def create_app(config_name):
         from .logger import logger as logger_blueprint
         app.register_blueprint(logger_blueprint)
         app.logger.addHandler(file_handler)
+        app.logger.setLevel(logging.INFO)
     return app
