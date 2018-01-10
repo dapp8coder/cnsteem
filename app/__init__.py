@@ -18,11 +18,14 @@ def create_app(config_name):
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
-    if not os.path.exists('logs'):
-        os.mkdir('logs')
-    file_handler = logging.handlers.RotatingFileHandler('logs/cnsteem.log', maxBytes=10240, backupCount=10)
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s '))
-    app.logger.addHandler(file_handler)
-    app.logger.setLevel(logging.INFO)
+    if app.config['LOGGING_REQUESTS']:
+        if not os.path.exists('logs'):
+            os.mkdir('logs')
+        file_handler = logging.handlers.RotatingFileHandler('logs/%s' % app.config['LOG_FILE_NAME'], maxBytes=10240,
+                                                            backupCount=10)
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s '))
+        from .logger import logger as logger_blueprint
+        app.register_blueprint(logger_blueprint)
+        app.logger.addHandler(file_handler)
     return app

@@ -2,7 +2,7 @@ import os
 import string
 import random
 import stripe
-from flask import render_template, redirect, request, current_app, url_for, flash
+from flask import render_template, redirect, request, current_app as app, url_for, flash
 from ..model import Order, User
 from .. import db, email_tool
 from . import steem_tool, main
@@ -20,7 +20,7 @@ def code_gen(size=16, chars=string.ascii_letters + string.digits):
 @main.route('/', methods=['GET', 'POST'])
 def index():
     form = PaymentForm()
-    payment_amount = current_app.config['STRIPE_CHARGE_AMOUNT']
+    payment_amount = app.config['STRIPE_CHARGE_AMOUNT']
     form.amount.data = '$ ' + str(payment_amount)
     if form.validate_on_submit():
         username = form.username.data
@@ -29,9 +29,9 @@ def index():
             source = stripe.Source.create(
                 type='alipay',
                 amount=int(payment_amount * 100),
-                currency=current_app.config['STRIPE_CHARGE_CURRENCY'],
+                currency=app.config['STRIPE_CHARGE_CURRENCY'],
                 owner={
-                    'email': current_app.config['STRIPE_OWNER_EMAIL']
+                    'email': app.config['STRIPE_OWNER_EMAIL']
                 },
                 redirect={
                     'return_url': url_for('main.callback', _external=True)
@@ -46,7 +46,7 @@ def index():
             return redirect(source.redirect.url)
         except Exception as e:
             flash('支付跳转创建失败')
-            current_app.logger.warning(str(e))
+            app.logger.warning(str(e))
             return render_template('index.html', form=form)
 
     return render_template('index.html', form=form)
@@ -60,7 +60,7 @@ def callback():
         if source and source.status != "failed":
             return render_template("info.html", message="付款成功，请登录邮箱查看注册链接")
     except Exception as e:
-        current_app.logger.warning(str(e))
+        app.logger.warning(str(e))
         return render_template("info.html", message="付款失败")
     return render_template("info.html", message="付款失败")
 
@@ -86,14 +86,15 @@ def webhook():
                 order.confirmed_code = confirmed_code
                 db.session.add(order)
                 # Send email
-                if current_app.config['PRODUCTION']:
+                if app.config['PRODUCTION']:
                     link = url_for('main.register', _external=True, code=confirmed_code)
                     status_code = email_tool.send_email(data['metadata']['email'], link)
-                    current_app.logger.info('%s:%s', data['metadata']['email'], status_code)
+                    app.logger.info('Email Status: %s:%s -> code: %s', data['metadata']['username'],
+                                    data['metadata']['email'], status_code)
                 return "Success"
 
         except Exception as e:
-            current_app.logger.warning(str(e))
+            app.logger.warning(str(e))
             return 'Failure'
     return 'Failure'
 
@@ -109,14 +110,14 @@ def register(code):
     if form.validate_on_submit():
         try:
             # steem register
-            if current_app.config['PRODUCTION']:
+            if app.config['PRODUCTION']:
                 steem_tool.create_account(
                     order.username,
-                    delegation_fee_steem=current_app.config['STEEM_REGISTER_FEE'],
+                    delegation_fee_steem=app.config['STEEM_REGISTER_FEE'],
                     password=form.password.data,
-                    creator=current_app.config['STEEM_REGISTER_CREATOR']
+                    creator=app.config['STEEM_REGISTER_CREATOR']
                 )
-                current_app.logger.info('%s', order.username)
+                app.logger.info('Register Status: %s', order.username)
             # update database
             order.created = True
             user = User(username=order.username, email=order.email)
@@ -124,7 +125,7 @@ def register(code):
             db.session.add(user)
             return render_template('register_success.html')
         except Exception as e:
-            current_app.logger.warning(str(e))
+            app.logger.warning(str(e))
             return render_template('register_failure.html')
     # generate register form
     form.email.data = order.email
@@ -144,12 +145,12 @@ def delegate():
         elif Amount(Account(username)['received_vesting_shares']).amount > 4000:
             flash('很抱歉，该用户名已有足够带宽，请把机会让给他人')
         else:
-            try :
+            try:
                 vests = '{} VESTS'.format(Converter().sp_to_vests(2))
-                steem_tool.delegate_vesting_shares(username, vests, account=current_app.config['STEEM_REGISTER_CREATOR'])
+                steem_tool.delegate_vesting_shares(username, vests, account=app.config['STEEM_REGISTER_CREATOR'])
                 return render_template('info.html', message="申请成功")
             except Exception as e:
-                current_app.logger.warning(str(e))
+                app.logger.warning(str(e))
                 return render_template('info.html', message='很抱歉，申请失败，请稍候再试或联系管理员')
 
     return render_template('delegate.html', form=form)

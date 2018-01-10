@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 
+
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
@@ -15,6 +16,7 @@ class Config:
     STEEM_REGISTER_CREATOR = "cnsteem"
     STEEM_REGISTER_FEE = "0.2 STEEM"
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
+    LOG_FILE_NAME = 'cnsteem.log'
 
     @staticmethod
     def init_app(app):
@@ -22,15 +24,17 @@ class Config:
 
 
 class DevelopmentConfig(Config):
+    LOGGING_REQUESTS = False
     DEBUG = True
 
 
-
 class TestingConfig(Config):
+    LOGGING_REQUESTS = False
     TESTING = True
 
 
 class ProductionConfig(Config):
+    LOGGING_REQUESTS = True
     PRODUCTION = True
 
 
