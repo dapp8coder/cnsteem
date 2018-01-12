@@ -8,13 +8,16 @@
 {{ super() }}
 <link rel="shortcut icon" href="{{ url_for('static', filename = 'favicon.ico') }}" type="image/x-icon">
 <link rel="icon" href="{{ url_for('static', filename = 'favicon.ico') }}" type="image/x-icon">
+<meta name="description" content="Steemit账号快速注册"/>
+<meta name="title" content="Steemit 注册"/>
+<meta name="keywords" content="Steemit Steem 注册"/>
 {% endblock %}
 
 {% block styles -%}
 {{super()}}
 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='cnsteem.css')}}">
 {% endblock %}
-{% block title %}CNsteem{% endblock %}
+{% block title %}Steemit注册{% endblock %}
 {% block navbar %}
 <div class="navbar navbar-inverse" role="navigation">
     <div class="container">
