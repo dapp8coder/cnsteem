@@ -21,7 +21,7 @@ def create_app(config_name):
     if app.config['LOGGING_REQUESTS']:
         if not os.path.exists('logs'):
             os.mkdir('logs')
-        file_handler = logging.handlers.RotatingFileHandler('logs/%s' % app.config['LOG_FILE_NAME'], maxBytes=10240,
+        file_handler = logging.handlers.RotatingFileHandler('logs/%s' % app.config['LOG_FILE_NAME'], maxBytes=102400,
                                                             backupCount=10)
         file_handler.setLevel(logging.INFO)
         file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s '))
