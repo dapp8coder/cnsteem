@@ -1,6 +1,6 @@
 import os
 import string
-import random
+import secrets
 import stripe
 from flask import render_template, redirect, request, current_app as app, url_for, flash
 from ..model import Order, User
@@ -14,7 +14,9 @@ stripe.api_key = os.environ['STRIPE_API_KEY']
 
 
 def code_gen(size=16, chars=string.ascii_letters + string.digits):
-    return ''.join(random.choice(chars) for _ in range(size))
+    words = ['l', 'I', '0', 'O']
+    chars = ''.join(c for c in chars if c not in words)
+    return ''.join(secrets.choice(chars) for _ in range(size))
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -154,3 +156,8 @@ def delegate():
                 return render_template('info.html', message='很抱歉，申请失败，请稍候再试或联系管理员')
 
     return render_template('delegate.html', form=form)
+
+
+@main.route('/test')
+def test():
+    return render_template('info.html', message=code_gen(10))
