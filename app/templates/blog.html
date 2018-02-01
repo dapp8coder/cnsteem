@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <title>{{ name }}的博客</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="建立在 Steem 区块链上的博客">
+  <meta name="author" content="{{ name }}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ name }}的博客">
+  <meta property="og:description" content="建立在 Steem 区块链上的个人博客">
+  <meta name="keywords" content="Steemit Steem 注册 CNsteem"/>
+  <script type="text/javascript">
+    document.documentElement.classList.remove('no-js')
+    window.config = {
+      locale: 'zh',
+      username: '{{ name }}',
+      server: 'https://api.steemit.com'
+    }
+  </script>
+  <link rel="stylesheet" href="/static/selfsteem.css?v=2">
+  <script src="/static/selfsteem.js?v=2"></script>
+</head>
+<body>
+  <div id="no-js">
+    <p>
+      博客由 <a href="https://steem.io" target="_blank">Steem 区块链</a> 驱动，需要 JavaScript 来运行
+    </p>
+  </div>
+  <header>
+    <h1>{{ name }}的博客</h1>
+  </header>
+  <section id="posts">
+    <div class="loading">
+      <p>加载...</p>
+      <div><span></span><span></span><span></span><span></span></div>
+    </div>
+  </section>
+  <section id="posts-nav">
+    <a class="older" href="#">更早的文章</a>
+    <a class="home" href="#">首页</a>
+  </section>
+  <footer>
+    <h2>关于</h2>
+    <section class="about">
+      <p>此博客基于 <a href="https://github.com/jnordberg/selfsteem"> SelfSteem </a> 实现, 由<a href="https://steemit.com/@skenan"> skenan </a>部署在<a href="https://cnsteem.io">CNsteem.io</a> 之上，内容直接从<a href="https://steem.io"> Steem </a>区块链上获取，数据永不消失。</p>
+        <p>我是<a href="https://steemit.com/@{{ name }}">{{ name }}</a>，欢迎在 <a href="https://steemit.com/@{{ name }}">Steemit</a> 上关注我。</p>
+
+    </section>
+    <section class="footnote">
+      <p>© 2017 {{ name }} &mdash;
+      驱动 by <a href="https://github.com/jnordberg/selfsteem" target="_blank">SelfSteem</a>
+    </section>
+  </footer>
+  <div id="templates">
+    <article class="post preview">
+      <header>
+        <h1><a class="permalink title" href="#" rel="bookmark">Title</a></h1>
+        <p class="date">Date</p>
+      </header>
+      <section class="body"></section>
+      <p class="more"><a class="permalink" href="#">阅读更多</a>
+    </article>
+    <article class="post full">
+      <header>
+        <p class="date">Date</p>
+        <h1 class="title">Title</h1>
+      </header>
+      <section class="body"></section>
+    </article>
+  </div>
+
+</body>
+</html>

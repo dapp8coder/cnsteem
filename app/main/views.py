@@ -2,6 +2,8 @@ import os
 import string
 import secrets
 import stripe
+import requests
+import hashlib
 from flask import render_template, redirect, request, current_app as app, url_for, flash
 from ..model import Order, User
 from .. import db, email_tool
@@ -158,6 +160,6 @@ def delegate():
     return render_template('delegate.html', form=form)
 
 
-@main.route('/test')
-def test():
-    return render_template('info.html', message=code_gen(10))
+@main.route('/@<string:name>')
+def blog(name):
+    return render_template('blog.html', name=name)
