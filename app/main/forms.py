@@ -16,7 +16,7 @@ class PaymentForm(FlaskForm):
 
     def validate_username(self, field):
         name = field.data
-        if name.count('.') >=2:
+        if name.count('.') >=3:
             raise ValidationError('用户名最多有一个点号')
         for n in name.split('.'):
             if len(n) < 3:
