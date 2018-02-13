@@ -23,6 +23,13 @@ def code_gen(size=16, chars=string.ascii_letters + string.digits):
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
+    acc = Account(app.config['STEEM_REGISTER_CREATOR'])
+    amount = Converter().vests_to_sp(
+        Amount(acc['vesting_shares']).amount - Amount(acc['delegated_vesting_shares']).amount)
+
+    if amount < 20:
+        return render_template('outoffund.html')
+
     form = PaymentForm()
     payment_amount = app.config['STRIPE_CHARGE_AMOUNT']
     form.amount.data = '$ ' + str(payment_amount)
