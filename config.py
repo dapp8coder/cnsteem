@@ -37,6 +37,14 @@ class TestingConfig(Config):
 class ProductionConfig(Config):
     LOGGING_REQUESTS = True
     PRODUCTION = True
+    JOBS = [
+        {
+            'id': 'job1',
+            'func': 'app.main.scheduler:update_sp',
+            'trigger': 'interval',
+            'seconds': 3600
+        }
+    ]
 
 
 config = {

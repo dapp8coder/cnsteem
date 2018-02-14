@@ -5,7 +5,7 @@ import stripe
 import requests
 import hashlib
 from flask import render_template, redirect, request, current_app as app, url_for, flash
-from ..model import Order, User
+from ..model import Order, User, SteemPower
 from .. import db, email_tool
 from . import steem_tool, main
 from .forms import RegisterForm, PaymentForm, DelegateForm
@@ -23,11 +23,9 @@ def code_gen(size=16, chars=string.ascii_letters + string.digits):
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    acc = Account(app.config['STEEM_REGISTER_CREATOR'])
-    amount = Converter().vests_to_sp(
-        Amount(acc['vesting_shares']).amount - Amount(acc['delegated_vesting_shares']).amount)
 
-    if amount < 20:
+    steem_power = SteemPower.query.filter_by(username=app.config['STEEM_REGISTER_CREATOR']).first()
+    if steem_power and steem_power.sp < 20:
         return render_template('outoffund.html')
 
     form = PaymentForm()

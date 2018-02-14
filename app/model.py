@@ -22,3 +22,9 @@ class User(db.Model):
     username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(100), nullable=False)
     create_time = db.Column(db.DateTime, default=datetime.now)
+
+class SteemPower(db.Model):
+    __tablename__ = "steempower"
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    sp = db.Column(db.Float)
