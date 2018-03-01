@@ -8,7 +8,7 @@ from flask import render_template, redirect, request, current_app as app, url_fo
 from ..model import Order, User, SteemPower
 from .. import db, email_tool
 from . import steem_tool, main
-from .forms import RegisterForm, PaymentForm, DelegateForm
+from .forms import RegisterForm, PaymentForm, DelegateForm, PaysAPIForm
 from steem.converter import Converter
 from steem.account import Account, Amount
 
@@ -21,9 +21,8 @@ def code_gen(size=16, chars=string.ascii_letters + string.digits):
     return ''.join(secrets.choice(chars) for _ in range(size))
 
 
-@main.route('/', methods=['GET', 'POST'])
+@main.route('/test', methods=['GET', 'POST'])
 def index():
-
     steem_power = SteemPower.query.filter_by(username=app.config['STEEM_REGISTER_CREATOR']).first()
     if steem_power and steem_power.sp < 20:
         return render_template('outoffund.html')
@@ -168,3 +167,96 @@ def delegate():
 @main.route('/@<string:name>')
 def blog(name):
     return render_template('blog.html', name=name)
+
+
+@main.route('/', methods=['GET', 'POST'])
+def pays_index():
+    steem_power = SteemPower.query.filter_by(username=app.config['STEEM_REGISTER_CREATOR']).first()
+    if steem_power and steem_power.sp < 20:
+        return render_template('outoffund.html')
+
+    form = PaymentForm()
+    payment_amount = app.config['PAYSAPI_CHARGE_AMOUNT']
+    form.amount.data = '￥ ' + str(payment_amount) + '元'
+    if form.validate_on_submit():
+        try:
+            uid = os.environ['PAYSAPI_UID']
+            token = os.environ['PAYSAPI_TOKEN']
+            username = form.username.data
+            email = form.email.data
+            price = payment_amount
+            istype = 1  # 1 means alipay
+            notify_url = url_for('main.pays_webhook', _external=True)
+            return_url = url_for('main.pays_callback', _external=True)
+            orderid = 'pays_' + code_gen(size=16)
+            orderuid = username
+            key = str(istype) + notify_url + orderid + orderuid + str(price) + return_url + token + uid
+            key = hashlib.md5(key.encode('utf-8')).hexdigest()
+
+            new_form = PaysAPIForm()
+            new_form.username.data = username
+            new_form.email.data = email
+            new_form.uid.data = uid
+            new_form.price.data = price
+            new_form.istype.data = istype
+            new_form.notify_url.data = notify_url
+            new_form.return_url.data = return_url
+            new_form.orderid.data = orderid
+            new_form.orderuid.data = orderuid
+            new_form.key.data = key
+
+            order = Order(username=username, email=email, source_id=orderid)
+            db.session.add(order)
+            return render_template('pay.html', form=new_form)
+        except Exception as e:
+            flash('支付跳转创建失败，请稍候再试')
+            app.logger.warning(str(e))
+            return render_template('index.html', form=form)
+
+    return render_template('index.html', form=form)
+
+
+@main.route('/pays/callback')
+def pays_callback():
+    order_id = request.args.get('orderid', '')
+    try:
+        if order_id:
+            return render_template("info.html", message="付款成功，请登录邮箱查看注册链接")
+    except Exception as e:
+        app.logger.warning(str(e))
+        return render_template("info.html", message="付款失败")
+    return render_template("info.html", message="付款失败")
+
+
+@main.route('/pays/webhook', methods=['POST'])
+def pays_webhook():
+    paysapi_id = request.form['paysapi_id']
+    orderid = request.form['orderid']
+    price = request.form['price']
+    realprice = request.form['realprice']
+    orderuid = request.form['orderuid']
+    key = request.form['key']
+    token = os.environ['PAYSAPI_TOKEN']
+
+    correct_key = orderid + orderuid + paysapi_id + price + realprice + token
+    correct_key = hashlib.md5(correct_key.encode('utf-8')).hexdigest()
+    if key == correct_key:
+        try:
+            # Update the order info
+            confirmed_code = code_gen(size=24)
+            order = Order.query.filter_by(source_id=orderid).first()
+            order.charge_id = paysapi_id
+            order.confirmed_code = confirmed_code
+            db.session.add(order)
+            # Send email
+            if 'PRODUCTION' in app.config and app.config['PRODUCTION']:
+                link = url_for('main.register', _external=True, code=confirmed_code)
+                status_code = email_tool.send_email(order.email, link)
+                app.logger.info('Email Status: %s:%s -> code: %s', order.username, order.email, status_code)
+
+            return "Success", 200
+
+        except Exception as e:
+            app.logger.warning(str(e))
+            return 'Failure', 404
+    return 'Failure', 404

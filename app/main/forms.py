@@ -1,11 +1,11 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField
+from wtforms import StringField, SubmitField, SelectField, HiddenField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Regexp
 from . import steem_tool
 
 
 class PaymentForm(FlaskForm):
-    username = StringField('用户名', validators=[DataRequired('必填项'), Length(3, 15,'长度必须在3和16之间'),
+    username = StringField('用户名', validators=[DataRequired('必填项'), Length(3, 15, '长度必须在3和16之间'),
                                               Regexp('^[a-z][a-z0-9.-]*[a-z0-9]$', 0,
                                                      '用户名必须由小写字母，0-9，破折号或点号构成，首字符必须为字母，必须以字母或数字结尾')])
     email = StringField('Email', validators=[Email('Email不合法'), Length(1, 64, '长度必须在1和64之间')])
@@ -16,13 +16,27 @@ class PaymentForm(FlaskForm):
 
     def validate_username(self, field):
         name = field.data
-        if name.count('.') >=3:
+        if name.count('.') >= 3:
             raise ValidationError('用户名最多有一个点号')
         for n in name.split('.'):
             if len(n) < 3:
                 raise ValidationError('以点号隔开的每一个分段长度要大于2')
         if steem_tool.get_account(name):
             raise ValidationError('%s 已被注册.' % field.data)
+
+
+class PaysAPIForm(FlaskForm):
+    username = StringField('用户名', render_kw={'readonly': True})
+    email = StringField('Email', render_kw={'readonly': True})
+    uid = HiddenField('uid')
+    price = HiddenField('price')
+    istype = HiddenField('istype')
+    notify_url = HiddenField('notify_url')
+    return_url = HiddenField('return_url')
+    orderid = HiddenField('orderid')
+    key = HiddenField('key')
+    orderuid = HiddenField('orderuid')
+    submit = SubmitField('确认无误，前往付款')
 
 
 class RegisterForm(FlaskForm):
@@ -35,7 +49,6 @@ class RegisterForm(FlaskForm):
     def validate_agree(self, field):
         if field.data != 'Y':
             raise ValidationError('请牢记密码!')
-
 
 
 class DelegateForm(FlaskForm):
