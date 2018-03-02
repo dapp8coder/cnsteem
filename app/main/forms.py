@@ -13,6 +13,7 @@ class PaymentForm(FlaskForm):
                                   validators=[Email('Email不合法'), EqualTo('confirmed_email', message='Email必须相同')])
     amount = StringField('金额', render_kw={'readonly': True}, default="$2.00")
     submit = SubmitField('支付宝付款')
+    submit_wepay = SubmitField('微信付款')
 
     def validate_username(self, field):
         name = field.data

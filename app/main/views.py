@@ -185,7 +185,7 @@ def pays_index():
             username = form.username.data
             email = form.email.data
             price = payment_amount
-            istype = 1  # 1 means alipay
+            istype = 1 if form.submit.data else 2  # 1 means alipay, 2 means wepay
             notify_url = url_for('main.pays_webhook', _external=True, _scheme='https')
             return_url = url_for('main.pays_callback', _external=True)
             orderid = 'pays_' + code_gen(size=16)
