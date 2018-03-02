@@ -21,7 +21,7 @@ def code_gen(size=16, chars=string.ascii_letters + string.digits):
     return ''.join(secrets.choice(chars) for _ in range(size))
 
 
-@main.route('/test', methods=['GET', 'POST'])
+@main.route('/', methods=['GET', 'POST'])
 def index():
     steem_power = SteemPower.query.filter_by(username=app.config['STEEM_REGISTER_CREATOR']).first()
     if steem_power and steem_power.sp < 20:
@@ -169,7 +169,7 @@ def blog(name):
     return render_template('blog.html', name=name)
 
 
-@main.route('/', methods=['GET', 'POST'])
+@main.route('/test', methods=['GET', 'POST'])
 def pays_index():
     steem_power = SteemPower.query.filter_by(username=app.config['STEEM_REGISTER_CREATOR']).first()
     if steem_power and steem_power.sp < 20:
@@ -186,7 +186,7 @@ def pays_index():
             email = form.email.data
             price = payment_amount
             istype = 1  # 1 means alipay
-            notify_url = url_for('main.pays_webhook', _external=True)
+            notify_url = url_for('main.pays_webhook', _external=True, _scheme='https')
             return_url = url_for('main.pays_callback', _external=True)
             orderid = 'pays_' + code_gen(size=16)
             orderuid = username
@@ -258,5 +258,5 @@ def pays_webhook():
 
         except Exception as e:
             app.logger.warning(str(e))
-            return 'Failure', 404
+            return 'Exception', 404
     return 'Failure', 404
