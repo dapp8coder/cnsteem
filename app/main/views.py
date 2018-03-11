@@ -2,6 +2,7 @@ import os
 import string
 import secrets
 import stripe
+import hashlib
 from datetime import date, timedelta
 from flask import render_template, redirect, request, current_app as app, url_for, flash
 from ..model import Order, User, SteemPower
