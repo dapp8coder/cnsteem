@@ -2,8 +2,7 @@ import os
 import string
 import secrets
 import stripe
-import requests
-import hashlib
+from datetime import date, timedelta
 from flask import render_template, redirect, request, current_app as app, url_for, flash
 from ..model import Order, User, SteemPower
 from .. import db, email_tool
@@ -162,6 +161,18 @@ def delegate():
                 return render_template('info.html', message='很抱歉，申请失败，请稍候再试或联系管理员')
 
     return render_template('delegate.html', form=form)
+
+
+@main.route('/info', methods=['GET'])
+def my_info():
+    today = date.today()
+    yesterday = date.today() - timedelta(1)
+    total_count = User.query.count()
+    yesterday_count = User.query.filter(User.create_time < today, User.create_time > yesterday).count()
+    today_count = User.query.filter(User.create_time > today).count()
+
+    count = {'total' : total_count, 'yesterday': yesterday_count, 'today': today_count}
+    return render_template('stats.html', count=count)
 
 
 @main.route('/@<string:name>')
