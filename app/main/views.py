@@ -175,6 +175,9 @@ def my_info():
     count = {'total' : total_count, 'yesterday': yesterday_count, 'today': today_count}
     return render_template('stats.html', count=count)
 
+@main.route('/faq')
+def faq():
+    return render_template('faq.html')
 
 @main.route('/@<string:name>')
 def blog(name):
