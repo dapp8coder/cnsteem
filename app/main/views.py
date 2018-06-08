@@ -172,12 +172,14 @@ def my_info():
     yesterday_count = User.query.filter(User.create_time < today, User.create_time > yesterday).count()
     today_count = User.query.filter(User.create_time > today).count()
 
-    count = {'total' : total_count, 'yesterday': yesterday_count, 'today': today_count}
+    count = {'total': total_count, 'yesterday': yesterday_count, 'today': today_count}
     return render_template('stats.html', count=count)
+
 
 @main.route('/faq')
 def faq():
     return render_template('faq.html')
+
 
 @main.route('/@<string:name>')
 def blog(name):
@@ -275,3 +277,33 @@ def pays_webhook():
             app.logger.warning(str(e))
             return 'Exception', 404
     return 'Failure', 404
+
+
+@main.route('/partiko/register', methods=['POST'])
+def partiko_register():
+    partiko_key = request.headers.get('X-partiko')
+
+    if partiko_key != os.environ['PARTIKO_KEY']:
+        return 'Failure', 404
+
+    try:
+        payload = request.get_json(force=True)
+        email = payload['email']
+        username = payload['username']
+        partiko_id = 'partiko_' + code_gen(size=16)
+        confirmed_code = code_gen(size=24)
+        order = Order(username=username, email=email, source_id=partiko_id, confirmed_code=confirmed_code,
+                      charge_id=partiko_id)
+        db.session.add(order)
+
+        # Send email
+        if 'PRODUCTION' in app.config and app.config['PRODUCTION']:
+            link = url_for('main.register', _external=True, _scheme='https', code=confirmed_code)
+            status_code = email_tool.send_email(email, link)
+            app.logger.info('Email Status: %s:%s -> code: %s', order.username, email, status_code)
+
+    except Exception as e:
+        app.logger.warning(str(e))
+        return 'Exception', 404
+
+    return "Success", 200
