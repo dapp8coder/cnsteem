@@ -297,10 +297,10 @@ def partiko_register():
         db.session.add(order)
 
         # Send email
-
-        link = url_for('main.register', _external=True, _scheme='https', code=confirmed_code)
-        status_code = email_tool.send_email_partiko(email, link)
-        app.logger.info('Email Status: %s:%s -> code: %s', order.username, email, status_code)
+        if 'PRODUCTION' in app.config and app.config['PRODUCTION']:
+            link = url_for('main.register', _external=True, _scheme='https', code=confirmed_code)
+            status_code = email_tool.send_email_partiko(email, link)
+            app.logger.info('Email Status: %s:%s -> code: %s', order.username, email, status_code)
 
     except Exception as e:
         app.logger.warning(str(e))

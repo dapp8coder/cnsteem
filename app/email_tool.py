@@ -17,7 +17,7 @@ def send_email(to_email_address, link):
 
 def send_email_partiko(to_email_address, link):
     sg = sendgrid.SendGridAPIClient(apikey=os.environ.get('PARTIKO_EMAIL_KEY'))
-    from_email = Email("signup@partiko.app")
+    from_email = Email("Partiko Team <signup@partiko.app>")
     to_email = Email(to_email_address)
     subject = 'Partiko Sign Up Link'
     content = Content("text/plain", "Sign up link：%s" % link)
