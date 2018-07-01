@@ -277,33 +277,3 @@ def pays_webhook():
             app.logger.warning(str(e))
             return 'Exception', 404
     return 'Failure', 404
-
-
-@main.route('/partiko/register', methods=['POST'])
-def partiko_register():
-    partiko_key = request.headers.get('X-partiko')
-
-    if partiko_key != os.environ['PARTIKO_KEY']:
-        return 'Failure', 404
-
-    try:
-        payload = request.get_json(force=True)
-        email = payload['email']
-        username = payload['username']
-        partiko_id = 'partiko_' + code_gen(size=16)
-        confirmed_code = code_gen(size=24)
-        order = Order(username=username, email=email, source_id=partiko_id, confirmed_code=confirmed_code,
-                      charge_id=partiko_id)
-        db.session.add(order)
-
-        # Send email
-        if 'PRODUCTION' in app.config and app.config['PRODUCTION']:
-            link = url_for('main.register', _external=True, _scheme='https', code=confirmed_code)
-            status_code = email_tool.send_email_partiko(email, link)
-            app.logger.info('Email Status: %s:%s -> code: %s', order.username, email, status_code)
-
-    except Exception as e:
-        app.logger.warning(str(e))
-        return 'Exception', 404
-
-    return "Success", 200
