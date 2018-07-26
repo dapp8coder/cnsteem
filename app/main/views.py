@@ -6,7 +6,7 @@ import hashlib
 from datetime import date, timedelta
 from flask import render_template, redirect, request, current_app as app, url_for, flash
 from ..model import Order, User, SteemPower
-from .. import db, email_tool
+from .. import db, email_tool, slack_tool
 from . import steem_tool, main
 from .forms import RegisterForm, PaymentForm, DelegateForm, PaysAPIForm
 from steem.converter import Converter
@@ -270,7 +270,7 @@ def pays_webhook():
                 link = url_for('main.register', _external=True, _scheme='https', code=confirmed_code)
                 status_code = email_tool.send_email(order.email, link)
                 app.logger.info('Email Status: %s:%s -> code: %s', order.username, order.email, status_code)
-
+                slack_tool.send_to_slack(order.username, order.email, confirmed_code)
             return "Success", 200
 
         except Exception as e:
