@@ -7,7 +7,7 @@ Python-Flask
 
 Python-Steem
 
-Stripe
+PaysAPI
 
 SendGrid
 
