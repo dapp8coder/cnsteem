@@ -121,7 +121,6 @@ def register(code):
             if app.config['PRODUCTION']:
                 steem_tool.create_account(
                     order.username,
-                    delegation_fee_steem=app.config['STEEM_REGISTER_FEE'],
                     password=form.password.data,
                     creator=app.config['STEEM_REGISTER_CREATOR']
                 )
