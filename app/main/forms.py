@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, HiddenField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Regexp
+from wtforms.validators import DataRequired, Length, Email, ValidationError, Regexp
 from . import steem_tool
 
 
@@ -11,7 +11,6 @@ class PaymentForm(FlaskForm):
     email = StringField('Email', validators=[Email('Email不合法'), Length(1, 64, '长度必须在1和64之间')])
     amount = StringField('金额', render_kw={'readonly': True}, default="$2.00")
     submit = SubmitField('支付宝付款')
-    #submit_wepay = SubmitField('微信付款')
 
     def validate_username(self, field):
         name = field.data
@@ -20,7 +19,7 @@ class PaymentForm(FlaskForm):
         for n in name.split('.'):
             if len(n) < 3:
                 raise ValidationError('以点号隔开的每一个分段长度要大于2')
-        if steem_tool.get_account(name):
+        if steem_tool.rpc.get_account(name):
             raise ValidationError('%s 已被注册.' % field.data)
 
 

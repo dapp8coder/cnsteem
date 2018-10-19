@@ -8,9 +8,7 @@ from flask import render_template, redirect, request, current_app as app, url_fo
 from ..model import Order, User, SteemPower
 from .. import db, email_tool, slack_tool
 from . import steem_tool, main
-from .forms import RegisterForm, PaymentForm, DelegateForm, PaysAPIForm
-from steem.converter import Converter
-from steem.account import Account, Amount
+from .forms import RegisterForm, PaymentForm, PaysAPIForm
 
 stripe.api_key = os.environ['STRIPE_API_KEY']
 
@@ -23,10 +21,6 @@ def code_gen(size=16, chars=string.ascii_letters + string.digits):
 
 @main.route('/test', methods=['GET', 'POST'])
 def index():
-    steem_power = SteemPower.query.filter_by(username=app.config['STEEM_REGISTER_CREATOR']).first()
-    if steem_power and steem_power.sp < 20:
-        return render_template('outoffund.html')
-
     form = PaymentForm()
     payment_amount = app.config['STRIPE_CHARGE_AMOUNT']
     form.amount.data = '$ ' + str(payment_amount)
@@ -139,28 +133,6 @@ def register(code):
     form.username.data = order.username
     form.password.data = form.password.data if form.password.data else code_gen(size=40)
     return render_template('index.html', form=form)
-
-
-@main.route('/delegate', methods=['GET', 'POST'])
-def delegate():
-    form = DelegateForm()
-    if form.validate_on_submit():
-        username = form.username.data
-        user = User.query.filter_by(username=username).first()
-        if not user:
-            flash('很抱歉，该账号未通过CNsteem.io注册，无法申请')
-        elif Amount(Account(username)['received_vesting_shares']).amount > 4000:
-            flash('很抱歉，该用户名已有足够带宽，请把机会让给他人')
-        else:
-            try:
-                vests = '{} VESTS'.format(Converter().sp_to_vests(2))
-                steem_tool.delegate_vesting_shares(username, vests, account=app.config['STEEM_REGISTER_CREATOR'])
-                return render_template('info.html', message="申请成功")
-            except Exception as e:
-                app.logger.warning(str(e))
-                return render_template('info.html', message='很抱歉，申请失败，请稍候再试或联系管理员')
-
-    return render_template('delegate.html', form=form)
 
 
 @main.route('/info', methods=['GET'])
