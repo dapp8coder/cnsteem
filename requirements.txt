@@ -1,5 +1,4 @@
 appdirs==1.4.3
-APScheduler==3.5.1
 beem==0.20.7
 certifi==2018.10.15
 chardet==3.0.4
@@ -10,7 +9,6 @@ dominate==2.3.1
 ecdsa==0.13
 Events==0.3
 Flask==1.0.2
-Flask-APScheduler==1.7.1
 Flask-Bootstrap==3.3.7.1
 Flask-MySQL==1.4.0
 Flask-Script==2.0.6
@@ -58,5 +56,5 @@ voluptuous==0.10.5
 w3lib==1.18.0
 websocket-client==0.53.0
 websockets==4.0.1
-Werkzeug==0.13
+Werkzeug==0.14.1
 WTForms==2.1
