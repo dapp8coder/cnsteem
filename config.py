@@ -7,7 +7,6 @@ load_dotenv(os.path.join(basedir, '.env'))
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
-    GOOGLE_ANALYTICS_ID = os.environ.get('GOOGLE_ANALYTICS_ID')
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     STRIPE_CHARGE_AMOUNT = 2.00
@@ -17,6 +16,7 @@ class Config:
     STRIPE_OWNER_EMAIL = "cnsteem@gmail.com"
     STEEM_REGISTER_CREATOR = "cnsteem"
     STEEM_REGISTER_FEE = "3 STEEM"
+    BOOTSTRAP_SERVE_LOCAL = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
     LOG_FILE_NAME = 'cnsteem.log'
 
