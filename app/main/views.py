@@ -261,7 +261,7 @@ def vmq_index():
     form.amount.data = '￥ ' + str(payment_amount) + '元'
     if form.validate_on_submit():
         try:
-            token = app.config['VMQ_TOKEN']
+            token = os.environ['VMQ_TOKEN']
             username = form.username.data
             email = form.email.data
             price = payment_amount
@@ -313,7 +313,7 @@ def vmq_webhook():
     reallyPrice = request.args['reallyPrice']
     type = request.args['type']
     sign = request.args['sign']
-    token = app.config['VMQ_TOKEN']
+    token = os.environ['VMQ_TOKEN']
 
     correct_key = payId + param + str(type) + str(price) + str(reallyPrice) + token
     correct_key = hashlib.md5(correct_key.encode('utf-8')).hexdigest()
