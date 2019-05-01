@@ -8,7 +8,7 @@ from flask import render_template, redirect, request, current_app as app, url_fo
 from ..model import Order, User, SteemPower
 from .. import db, email_tool, slack_tool
 from . import steem_tool, main
-from .forms import RegisterForm, PaymentForm, PaysAPIForm
+from .forms import RegisterForm, PaymentForm, PaysAPIForm, VmqAPIForm
 
 stripe.api_key = os.environ['STRIPE_API_KEY']
 
@@ -157,7 +157,7 @@ def blog(name):
     return render_template('blog.html', name=name)
 
 
-@main.route('/', methods=['GET', 'POST'])
+@main.route('/pays', methods=['GET', 'POST'])
 def pays_index():
     steem_power = SteemPower.query.filter_by(username=app.config['STEEM_REGISTER_CREATOR']).first()
     if steem_power and steem_power.sp < 20:
@@ -234,6 +234,95 @@ def pays_webhook():
             confirmed_code = code_gen(size=24)
             order = Order.query.filter_by(source_id=orderid).first()
             order.charge_id = paysapi_id
+            order.confirmed_code = confirmed_code
+            db.session.add(order)
+            # Send email
+            if 'PRODUCTION' in app.config and app.config['PRODUCTION']:
+                link = url_for('main.register', _external=True, _scheme='https', code=confirmed_code)
+                status_code = email_tool.send_email(order.email, link)
+                app.logger.info('Email Status: %s:%s -> code: %s', order.username, order.email, status_code)
+                slack_tool.send_to_slack(order.username, order.email, confirmed_code)
+            return "Success", 200
+
+        except Exception as e:
+            app.logger.warning(str(e))
+            return 'Exception', 404
+    return 'Failure', 404
+
+
+@main.route('/', methods=['GET', 'POST'])
+def vmq_index():
+    steem_power = SteemPower.query.filter_by(username=app.config['STEEM_REGISTER_CREATOR']).first()
+    if steem_power and steem_power.sp < 20:
+        return render_template('outoffund.html')
+
+    form = PaymentForm()
+    payment_amount = app.config['PAYSAPI_CHARGE_AMOUNT']
+    form.amount.data = '￥ ' + str(payment_amount) + '元'
+    if form.validate_on_submit():
+        try:
+            token = app.config['VMQ_TOKEN']
+            username = form.username.data
+            email = form.email.data
+            price = payment_amount
+            type = 2 if form.submit.data else 1  # 2 means alipay, 1 means wepay
+            payId = 'vkm_' + code_gen(size=16)
+            param = username
+            key = payId + param + str(type) + str(price) + token
+            sign = hashlib.md5(key.encode('utf-8')).hexdigest()
+
+            new_form = VmqAPIForm()
+            new_form.username.data = username
+            new_form.email.data = email
+
+            new_form.payId.data = payId
+            new_form.type.data = type
+            new_form.price.data = price
+            new_form.sign.data = sign
+            new_form.param.data = param
+            new_form.isHtml.data = 1
+
+            order = Order(username=username, email=email, source_id=payId)
+            db.session.add(order)
+            return render_template('vkm.html', form=new_form)
+        except Exception as e:
+            flash('支付跳转创建失败，请稍候再试')
+            app.logger.warning(str(e))
+            return render_template('index.html', form=form)
+
+    return render_template('index.html', form=form)
+
+
+@main.route('/vmq/callback')
+def vmq_callback():
+    payId = request.args.get('payId', '')
+    try:
+        if payId:
+            return render_template("info.html", message="付款成功，请登录邮箱查看注册链接")
+    except Exception as e:
+        app.logger.warning(str(e))
+        return render_template("info.html", message="付款失败")
+    return render_template("info.html", message="付款失败")
+
+
+@main.route('/vmq/webhook', methods=['GET'])
+def vmq_webhook():
+    payId = request.args['payId']
+    param = request.args['param']
+    price = request.args['price']
+    reallyPrice = request.args['reallyPrice']
+    type = request.args['type']
+    sign = request.args['sign']
+    token = app.config['VMQ_TOKEN']
+
+    correct_key = payId + param + str(type) + str(price) + str(reallyPrice) + token
+    correct_key = hashlib.md5(correct_key.encode('utf-8')).hexdigest()
+    if sign == correct_key:
+        try:
+            # Update the order info
+            confirmed_code = code_gen(size=24)
+            order = Order.query.filter_by(source_id=payId).first()
+            order.charge_id = payId
             order.confirmed_code = confirmed_code
             db.session.add(order)
             # Send email

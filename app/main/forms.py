@@ -37,6 +37,18 @@ class PaysAPIForm(FlaskForm):
     submit = SubmitField('确认无误，前往付款')
 
 
+class VmqAPIForm(FlaskForm):
+    username = StringField('用户名', render_kw={'readonly': True})
+    email = StringField('Email', render_kw={'readonly': True})
+    price = HiddenField('price')
+    type = HiddenField('type')
+    payId = HiddenField('payId')
+    sign = HiddenField('sign')
+    param = HiddenField('param')
+    isHtml = HiddenField('isHtml')
+    submit = SubmitField('确认无误，前往付款')
+
+
 class RegisterForm(FlaskForm):
     username = StringField('用户名', validators=[DataRequired(), Length(1, 64)], render_kw={'readonly': True})
     email = StringField('Email', validators=[Email(), Length(1, 64)], render_kw={'readonly': True})

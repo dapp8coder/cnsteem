@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}CNsteem - 付款 {% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <form action="https://pay.cnsteem.io/createOrder" method="post">
+        {{ form.hidden_tag() }}
+        {{ wtf.form_field(form.username) }}
+        {{ wtf.form_field(form.email) }}
+        <p>{{ wtf.form_field(form.submit, button_map={'submit': 'primary'})}}</p>
+    </form>
+</div>
+{% endblock %}
