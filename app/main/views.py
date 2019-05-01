@@ -331,7 +331,7 @@ def vmq_webhook():
                 status_code = email_tool.send_email(order.email, link)
                 app.logger.info('Email Status: %s:%s -> code: %s', order.username, order.email, status_code)
                 slack_tool.send_to_slack(order.username, order.email, confirmed_code)
-            return "Success", 200
+            return "success", 200
 
         except Exception as e:
             app.logger.warning(str(e))
