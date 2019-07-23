@@ -1,18 +1,11 @@
-# CNsteem --Promote Steem Blockchain to China
+# CNSteem -- Steem 付费注册
+
+### 技术栈
+
+Flask + Beem API + Vmq
 
 
-### The Main Stack
 
-Python-Flask
+### 特别鸣谢
 
-Python-Steem
-
-PaysAPI
-
-SendGrid
-
-### Take Care
-
-Need to set (SECRET_KEY, STEEM_ACTIVE_KEY, STRIPE_API_KEY, SENDGRID_API_KEY) as environment variables
-
-Need to change the python-steem lib to remove the fee limit
+[Vmq](https://github.com/szvone/Vmq) - 个人开发者收款解决方案
